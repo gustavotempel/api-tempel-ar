@@ -2,8 +2,8 @@ from flask import Flask
 from flask import jsonify
 from flask import request
 
-from database import select_query
-from database import modify_query
+from app.database import select_query
+from app.database import modify_query
 
 
 app = Flask(__name__)
