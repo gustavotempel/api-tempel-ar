@@ -2,8 +2,17 @@ from flask import Flask
 from flask import jsonify
 from flask import request
 
-from .database import select_query
-from .database import modify_query
+from dotenv import load_dotenv
+
+load_dotenv()
+
+import os
+import sys
+
+sys.path.append(os.environ["PYTHONPATH"])
+
+from tempel.database import select_query
+from tempel.database import modify_query
 
 
 app = Flask(__name__)

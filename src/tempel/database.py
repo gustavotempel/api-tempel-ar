@@ -9,7 +9,7 @@ def retrieve_database_config():
     postgres://{user}:{password}@{hostname}:{port}/{database-name}
     """
     try:
-        config = os.environ['DATABASE_URL']
+        config = os.environ["DATABASE_URL"]
     except:
         pass
     return config

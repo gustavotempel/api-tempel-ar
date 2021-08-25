@@ -1,1 +1,1 @@
-web: gunicorn src.app.app:app
+web: gunicorn src.tempel.app:app
