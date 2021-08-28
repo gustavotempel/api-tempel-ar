@@ -10,9 +10,8 @@ def retrieve_database_config():
     """
     try:
         config = os.environ["DATABASE_URL"]
-    except:
-        pass
-    return config
+    finally:
+        return config
 
 
 DB_CONFIG = retrieve_database_config()
