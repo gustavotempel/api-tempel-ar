@@ -23,8 +23,8 @@ app = Flask(__name__)
 
 
 @app.route("/", methods=["GET", "POST"])
-def hello_world():
-    return custom_response("Hello World!")
+def index():
+    return custom_response(f"<a href={SWAGGER_URL}>See the documentation!<a>")
 
 
 @app.route("/product/<id>", methods=["GET"])

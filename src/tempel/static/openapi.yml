@@ -2,11 +2,11 @@ swagger: "2.0"
 info:
   version: "1.0.0"
   title: "Products"
-basePath: "/api/v1"
+basePath: "/"
 tags:
   - name: "product"
 schemes:
-  - "https"
+  - "http"
 consumes:
   - "application/json"
 produces:
