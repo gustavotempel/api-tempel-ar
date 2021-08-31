@@ -4,12 +4,16 @@ from flask import request
 
 from flask_swagger_ui import get_swaggerui_blueprint
 
+from functools import wraps
+
 from dotenv import load_dotenv
 
 load_dotenv()
 
 import os
 import sys
+import jwt
+import time
 
 sys.path.append(os.environ["PYTHONPATH"])
 
@@ -21,6 +25,43 @@ API_URL = "/static/openapi.yml"
 
 app = Flask(__name__)
 
+app.secret_key = os.environ["SECRET_KEY"]
+
+
+def token_required(f):
+    @wraps(f)
+    def decorator(*args, **kwargs):
+        token = None
+        if "access_token" in request.headers:
+            token = request.headers["access_token"]
+        else:
+            return {"error": 401, "message": "No token provided"}, 401
+        try:
+            data = jwt.decode(token, app.secret_key, algorithms="HS256")
+        except:
+            return {"error": 401, "message": "Token is invalid"}, 401
+        return f(*args, **kwargs)
+    return decorator
+
+
+@app.route("/auth/token", methods=["POST"])
+def authentication():
+    if request.form["grant_type"] == "password":
+        username = request.form["username"]
+        password = request.form["password"]
+        expires_in = 300
+        iat = int(time.time())
+        exp = int(time.time()) + expires_in
+        token = jwt.encode({"username": username, "iat": iat, "exp": exp}, app.secret_key, algorithm="HS256")
+        return custom_response(
+            {
+            "access_token": token,
+            "token_type": None,
+            "expires_in": expires_in,
+            "refresh_token": None,
+            }, 200)
+    return custom_response({"error": "unsopported_grant_type", "error_description": "The authorization server does not support the requested 'grant_type'."}, 400)
+
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -28,6 +69,7 @@ def index():
 
 
 @app.route("/product/<id>", methods=["GET"])
+@token_required
 def search_product_by_id(id):
     fields = ["id", "name", "price", "url"]
     product_query = select_query(f"SELECT {', '.join(fields)} FROM products WHERE id={id}")
@@ -36,12 +78,14 @@ def search_product_by_id(id):
 
 
 @app.route("/product/<id>", methods=["DELETE"])
+@token_required
 def delete_product_by_id(id):
     product_query = modify_query(f"DELETE FROM products WHERE id={id}")
     return custom_response("Successfully deleted product", 202)
 
 
 @app.route("/product/<id>", methods=["PUT"])
+@token_required
 def update_product_by_id(id):
     fields = ["name", "price", "url"]
     product_to_update = request.json
@@ -52,6 +96,7 @@ def update_product_by_id(id):
 
 
 @app.route("/product", methods=["GET"])
+@token_required
 def list_products():
     fields = ["id", "name", "price", "url"]
     products_query = select_query(f"SELECT {', '.join(fields)} FROM products")
@@ -63,6 +108,7 @@ def list_products():
 
 
 @app.route("/product", methods=["POST"])
+@token_required
 def add_product():
     fields = ["name", "price", "url"]
     product_to_add = request.json
