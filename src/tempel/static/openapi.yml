@@ -1,23 +1,50 @@
-swagger: "2.0"
+openapi: 3.0.0
 info:
+  title: "Tempel API"
   version: "1.0.0"
-  title: "Products"
-basePath: "/"
-tags:
-  - name: "product"
-schemes:
-  - "http"
-consumes:
-  - "application/json"
-produces:
-  - "application/json"
+
+servers:
+  - url: http://api.tempel.ar
+    description: Main server
+  - url: http://localhost:5000
+    description: Internal local server for testing
 
 paths:
-  /product/{product_id}:
+  /auth/token:
+    post:
+      tags:
+        - "authentication"
+      summary: "Retrieves an authentication token"
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                grant_type:
+                  type: string
+                username:
+                  type: string
+                password:
+                  type: string
+              required:
+                - grant_type
+                - username
+                - password
+      responses:
+        200:
+          description: "Successfully retrived token"
+        400:
+          description: "Unsopported grant type"
+
+  /products/{product_id}:
     get:
       tags:
         - "product"
       summary: "Get a product in the store"
+      security:
+        - ApiKeyAuth: [write]
       operationId: "get_product"
       parameters:
         - name: "product_id"
@@ -29,7 +56,7 @@ paths:
         200:
           description: "Successfully retrived product"
           schema:
-            $ref: "#/definitions/Product"
+            $ref: "#/components/schemas/Product"
         404:
           description: "Product doesn't exist"
       x-swagger-router-controller: "test_api.web.controllers.products_controller"
@@ -65,14 +92,14 @@ paths:
           in: "body"
           required: true
           schema:
-            $ref: "#/definitions/Product"
+            $ref: "#/components/schemas/Product"
       responses:
         200:
           description: "Successfully updated product"
         404:
           description: "Product doesn't exist"
       x-swagger-router-controller: "test_api.web.controllers.products_controller"
-  /product:
+  /products:
     get:
       tags:
         - "product"
@@ -82,7 +109,7 @@ paths:
         200:
           description: "Successfully received all products."
           schema:
-            $ref: "#/definitions/Product"
+            $ref: "#/components/schemas/Product"
       x-swagger-router-controller: "test_api.web.controllers.products_controller"
     post:
       tags:
@@ -95,36 +122,65 @@ paths:
           description: "Product to add to the store"
           required: true
           schema:
-            $ref: "#/definitions/Product"
+            $ref: "#/components/schemas/Product"
       responses:
         201:
           description: "Product added"
       x-swagger-router-controller: "test_api.web.controllers.products_controller"
 
-definitions:
-  Products:
-    type: array
-    items:
-      $ref: "#/definitions/Product"
-  Product:
-    type: "object"
-    required:
-      - "name"
-      - "price"
-      - "url"
-    properties:
-      id:
-        type: "integer"
-        format: "int32"
-      name:
-        type: "string"
-      price:
-        type: "number"
-        format: "float"
-      url:
-        type: "string"
-    example:
-      id: 1
-      name: "sample_product"
-      price: 100.00
-      url: "http://sample_image.com"
+components:
+  schemas:
+    Products:
+      type: array
+      items:
+        $ref: "#/components/schemas/Product"
+    Product:
+      type: "object"
+      required:
+        - "name"
+        - "price"
+        - "url"
+      properties:
+        id:
+          type: "integer"
+          format: "int32"
+        name:
+          type: "string"
+        price:
+          type: "number"
+          format: "float"
+        url:
+          type: "string"
+      example:
+        id: 1
+        name: "sample_product"
+        price: 100.00
+        url: "http://sample_image.com"
+
+
+
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: access_token
+      # name: X-API-Key
+    # BasicAuth:
+    #   type: http
+    #   scheme: basic
+    # BearerAuth:
+    #   type: http
+    #   scheme: bearer
+    # OpenID:
+    #   type: openIdConnect
+    #   openIdConnectUrl: https://example.com/.well-known/openid-configuration
+    # OAuth2:
+    #   type: oauth2
+    #   flows:
+    #     authorizationCode:
+    #       authorizationUrl: https://example.com/oauth/authorize
+    #       tokenUrl: https://example.com/oauth/token
+    #       scopes:
+    #         read: Grants read access
+    #         write: Grants write access
+    #         admin: Grants access to admin operations

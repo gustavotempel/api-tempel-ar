@@ -68,7 +68,7 @@ def index():
     return custom_response(f"<a href={SWAGGER_URL}>See the documentation!<a>")
 
 
-@app.route("/product/<id>", methods=["GET"])
+@app.route("/products/<id>", methods=["GET"])
 @token_required
 def search_product_by_id(id):
     fields = ["id", "name", "price", "url"]
@@ -77,14 +77,14 @@ def search_product_by_id(id):
     return custom_response(jsonify(product))
 
 
-@app.route("/product/<id>", methods=["DELETE"])
+@app.route("/products/<id>", methods=["DELETE"])
 @token_required
 def delete_product_by_id(id):
     product_query = modify_query(f"DELETE FROM products WHERE id={id}")
     return custom_response("Successfully deleted product", 202)
 
 
-@app.route("/product/<id>", methods=["PUT"])
+@app.route("/products/<id>", methods=["PUT"])
 @token_required
 def update_product_by_id(id):
     fields = ["name", "price", "url"]
@@ -95,7 +95,7 @@ def update_product_by_id(id):
     return custom_response("Successfully updated product")
 
 
-@app.route("/product", methods=["GET"])
+@app.route("/products", methods=["GET"])
 @token_required
 def list_products():
     fields = ["id", "name", "price", "url"]
@@ -107,7 +107,7 @@ def list_products():
     return custom_response(jsonify(product_list))
 
 
-@app.route("/product", methods=["POST"])
+@app.route("/products", methods=["POST"])
 @token_required
 def add_product():
     fields = ["name", "price", "url"]
