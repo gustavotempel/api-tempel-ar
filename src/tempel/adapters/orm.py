@@ -8,8 +8,9 @@ from sqlalchemy.exc import NoInspectionAvailable
 from sqlalchemy.orm import sessionmaker, registry
 
 from tempel.domain import models
+from tempel.database import retrieve_database_uri
 
-DATABASE_URL = os.environ["DATABASE_URL"]
+DATABASE_URL = retrieve_database_uri()
 
 mapper_registry = registry()
 
