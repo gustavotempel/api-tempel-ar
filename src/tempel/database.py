@@ -3,18 +3,18 @@ import os
 import psycopg2
 
 
-def retrieve_database_config():
+def retrieve_database_uri():
     """
     Returns an environment variable corresponding to the database configuration in the following format:
-    postgres://{user}:{password}@{hostname}:{port}/{database-name}
+    {dialect}://{username}:{password}@{hostname}:{port}/{database-name}
     """
-    try:
-        config = os.environ["DATABASE_URL"]
-    finally:
-        return config
+    uri = os.getenv("DATABASE_URL")
+    if uri:
+        uri = uri.replace("postgres://", "postgresql://", 1) if uri.startswith("postgres://") else uri
+    return uri
 
 
-DB_CONFIG = retrieve_database_config()
+DB_CONFIG = retrieve_database_uri()
 
 
 def select_query(query, config=DB_CONFIG):
