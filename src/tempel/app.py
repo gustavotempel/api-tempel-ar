@@ -19,9 +19,12 @@ sys.path.append(os.environ["PYTHONPATH"])
 
 from tempel.database import select_query
 from tempel.database import modify_query
+from tempel.adapters import orm
 
-SWAGGER_URL = "/api/docs"
+SWAGGER_URL = "/docs"
 API_URL = "/static/openapi.yml"
+
+orm.create_session()
 
 app = Flask(__name__)
 
