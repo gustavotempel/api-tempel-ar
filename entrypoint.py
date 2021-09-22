@@ -12,4 +12,5 @@ app = create_app(settings)
 app.debug = True
 
 # Start the application
-app.run()
+if __name__ == '__main__':
+    app.run()
