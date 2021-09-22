@@ -25,6 +25,8 @@ def create_app(settings: Settings):
     app.secret_key = os.environ["SECRET_KEY"]
 
     # orm.start_mappers() # Already in SessionFactory
+    if settings.database_url.startswith("postgres://"):
+        settings.database_url = settings.database_url.replace("postgres://", "postgresql://", 1)
     session_factory = orm.SessionFactory(settings)
     app.query_engine = query.SqlAlchemyQueryEngine(session_factory)
 

@@ -10,4 +10,3 @@ class Settings(BaseSettings):
 
     database_url: Optional[str]
     database_args: Optional[Dict] = dict()
-    unit_of_work_factory: Optional[str]
