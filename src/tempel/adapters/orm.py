@@ -1,16 +1,13 @@
 """
 Database Schemas for models.
 """
-import os
-
 from sqlalchemy import Table, Column, Integer, String, DateTime, Boolean, MetaData, create_engine, inspect
 from sqlalchemy.exc import NoInspectionAvailable
 from sqlalchemy.orm import sessionmaker, registry
 
 from tempel.domain import models
-from tempel.database import retrieve_database_uri
+from tempel.conf import Settings
 
-DATABASE_URL = retrieve_database_uri()
 
 mapper_registry = registry()
 
@@ -24,9 +21,10 @@ users = Table(
     Column("email", String(50), nullable=False, unique=True),
     Column("password", String(255), nullable=False),
     Column("created_at", DateTime()),
-    Column("verify_code", String(50), nullable=False),
     Column("verified", Boolean, nullable=False),
     Column("is_active", Boolean, nullable=False),
+    Column("verify_code", String(50), nullable=False),
+    Column("expires_on", Integer(), nullable=False),
 )
 
 
@@ -35,11 +33,23 @@ def start_mappers():
     try:
         inspect(models.User)
     except NoInspectionAvailable:
-        user_mapper = mapper_registry.map_imperatively(models.User, users)
+        mapper_registry.map_imperatively(models.User, users)
 
 
-def create_session():
-    engine = create_engine(DATABASE_URL)
-    session_factory = sessionmaker(bind=engine)
-    metadata.create_all(engine)
-    start_mappers()
+class SessionFactory:
+    """Database session factory.
+
+    Args:
+        config: a Pydantic settings object.
+
+    """
+    def __init__(self, config: Settings):
+        self.database_url = config.database_url
+        self.database_args = config.database_args
+        self.engine = create_engine(self.database_url, connect_args=self.database_args)
+        self.session_factory = sessionmaker(bind=self.engine, autocommit=False, autoflush=False)
+        metadata.create_all(self.engine, checkfirst=True)
+        start_mappers()
+
+    def __call__(self, **kwargs):
+        return self.session_factory(**kwargs)

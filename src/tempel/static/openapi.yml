@@ -13,7 +13,7 @@ paths:
   /auth/token:
     post:
       tags:
-        - "authentication"
+        - "Authentication"
       summary: "Retrieves an authentication token"
       requestBody:
         required: true
@@ -41,7 +41,7 @@ paths:
   /products/{product_id}:
     get:
       tags:
-        - "product"
+        - "Product"
       summary: "Get a product in the store"
       security:
         - ApiKeyAuth: [write]
