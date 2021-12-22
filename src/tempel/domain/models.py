@@ -26,7 +26,7 @@ class User:
         """Retrieves a string with a random integer number format and zeros leading."""
         self.expires_on = int(time.time()) + expires_in
         return f"{random.randint(1, (10**digits)-1):0{digits}d}"
-    
+
     def verify_user(self, verify_code: str) -> bool:
         """Verifies the given code against the generated code and set verified attribute as true if them match."""
         if not self.verified:
@@ -37,3 +37,14 @@ class User:
             self.verified = True
             return True
         return False
+
+
+@attr.s
+class Product:
+    """
+    """
+    # product_id: int = attr.ib(init=False)
+    name: str = attr.ib()
+    price: float = attr.ib()
+    image: str = attr.ib()
+    

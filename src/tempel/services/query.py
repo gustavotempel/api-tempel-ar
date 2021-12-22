@@ -22,8 +22,12 @@ class AbstractQueryEngine(abc.ABC):
     def add(self, obj: models.User):
         pass
 
+    @abc.abstractmethod
+    def update(self, obj: models.User):
+        pass
 
-class SqlAlchemyQueryEngine(AbstractQueryEngine):
+
+class UserSqlAlchemyQueryEngine(AbstractQueryEngine):
     """A query engine that uses the SQLAlchemy ORM."""
 
     def __init__(self, session_factory: orm.SessionFactory):
@@ -50,6 +54,45 @@ class SqlAlchemyQueryEngine(AbstractQueryEngine):
             session.commit()
             print(user)
 
+    def update(self, obj: models.User):
+        pass
+
     @staticmethod
     def _expunge_user(session: Session, user: models.User):
         session.expunge(user)
+
+
+class ProductSqlAlchemyQueryEngine(AbstractQueryEngine):
+    """A query engine that uses the SQLAlchemy ORM."""
+
+    def __init__(self, session_factory: orm.SessionFactory):
+        self.session_factory = session_factory
+
+    def search(self):
+        with closing(self.session_factory()) as session:
+            query = session.query(models.Product)
+            result = query.all()
+            for product in result:
+                self._expunge_product(session, product)
+            return result
+
+    def get(self, id):
+        with closing(self.session_factory()) as session:
+            result = session.query(models.Product).filter_by(product_id=id).one_or_none()
+            if result is not None:
+                self._expunge_product(session, result)
+            return result
+
+    def add(self, product):
+        with closing(self.session_factory()) as session:
+            session.add(product)
+            session.commit()
+
+    def update(self, id, product):
+        with closing(self.session_factory()) as session:
+            session.query(models.Product).filter_by(product_id=id).update(product)
+            session.commit()
+
+    @staticmethod
+    def _expunge_product(session: Session, product: models.Product):
+        session.expunge(product)

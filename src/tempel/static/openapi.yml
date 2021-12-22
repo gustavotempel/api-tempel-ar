@@ -14,7 +14,7 @@ paths:
     post:
       tags:
         - "Authentication"
-      summary: "Retrieves an authentication token"
+      summary: "Retrieve an authentication token"
       requestBody:
         required: true
         content:
@@ -34,128 +34,126 @@ paths:
                 - password
       responses:
         200:
-          description: "Successfully retrived token"
+          description: "Token successfully generated"
         400:
           description: "Unsopported grant type"
 
-  /products/{product_id}:
+  /users/{id}:
     get:
       tags:
-        - "Product"
-      summary: "Get a product in the store"
+        - "User"
+      summary: "Get user by id"
       security:
         - ApiKeyAuth: [write]
-      operationId: "get_product"
+      operationId: "get_user"
       parameters:
-        - name: "product_id"
+        - name: "id"
           in: "path"
-          description: "The id of the product to retrieve"
+          description: "The id of the user to retrieve"
           required: true
           type: "string"
       responses:
         200:
-          description: "Successfully retrived product"
+          description: "User successfully retrived"
           schema:
-            $ref: "#/components/schemas/Product"
+            $ref: "#/components/schemas/User"
         404:
-          description: "Product doesn't exist"
-      x-swagger-router-controller: "test_api.web.controllers.products_controller"
+          description: "User doesn't exist"
+      x-swagger-router-controller: "test_api.web.controllers.user_controllers"
     delete:
       tags:
-        - "product"
-      summary: "Remove a product in the store"
-      operationId: "remove_product"
+        - "User"
+      summary: "Remove user by id"
+      operationId: "remove_user"
       parameters:
-        - name: "product_id"
+        - name: "id"
           in: "path"
-          description: "The id of the product to remove from the store"
+          description: "The id of the user to remove"
           required: true
           type: "string"
       responses:
         202:
-          description: "Successfully deleted product"
+          description: "User successfully removed"
         404:
-          description: "Product doesn't exist"
-      x-swagger-router-controller: "test_api.web.controllers.products_controller"
+          description: "User doesn't exist"
+      x-swagger-router-controller: "test_api.web.controllers.user_controllers"
     put:
       tags:
-        - "product"
-      summary: "Update and replace a product in the store"
-      operationId: "update_product"
+        - "User"
+      summary: "Update and replace an user"
+      operationId: "update_user"
       parameters:
-        - name: "product_id"
+        - name: "id"
           in: "path"
-          description: "The id of the product to update from the store"
+          description: "The id of the user to update"
           required: true
           type: "string"
-        - name: "Product"
+        - name: "User"
           in: "body"
           required: true
           schema:
-            $ref: "#/components/schemas/Product"
+            $ref: "#/components/schemas/User"
       responses:
         200:
-          description: "Successfully updated product"
+          description: "User successfully updated"
         404:
-          description: "Product doesn't exist"
-      x-swagger-router-controller: "test_api.web.controllers.products_controller"
-  /products:
+          description: "User doesn't exist"
+      x-swagger-router-controller: "test_api.web.controllers.user_controllers"
+  /users:
     get:
       tags:
-        - "product"
-      summary: "Gets all products in the store"
-      operationId: "get_all_products"
+        - "User"
+      summary: "List all users"
+      operationId: "get_all_users"
       responses:
         200:
-          description: "Successfully received all products."
+          description: "All users successfully retrieved."
           schema:
-            $ref: "#/components/schemas/Product"
-      x-swagger-router-controller: "test_api.web.controllers.products_controller"
+            $ref: "#/components/schemas/User"
+      x-swagger-router-controller: "test_api.web.controllers.user_controllers"
     post:
       tags:
-        - "product"
-      summary: "Add a new product to the store"
-      operationId: "add_product"
+        - "User"
+      summary: "Create a new user"
+      operationId: "add_user"
       parameters:
         - in: "body"
           name: "body"
-          description: "Product to add to the store"
+          description: "User to create"
           required: true
           schema:
-            $ref: "#/components/schemas/Product"
+            $ref: "#/components/schemas/User"
       responses:
         201:
-          description: "Product added"
-      x-swagger-router-controller: "test_api.web.controllers.products_controller"
+          description: "User created"
+      x-swagger-router-controller: "test_api.web.controllers.user_controllers"
 
 components:
   schemas:
-    Products:
+    Users:
       type: array
       items:
-        $ref: "#/components/schemas/Product"
-    Product:
+        $ref: "#/components/schemas/User"
+    User:
       type: "object"
-      required:
-        - "name"
-        - "price"
-        - "url"
       properties:
         id:
           type: "integer"
           format: "int32"
-        name:
+        username:
           type: "string"
-        price:
-          type: "number"
-          format: "float"
-        url:
+        email:
           type: "string"
+        password:
+          type: "string"
+      required:
+        - "username"
+        - "email"
+        - "password"
       example:
-        id: 1
-        name: "sample_product"
-        price: 100.00
-        url: "http://sample_image.com"
+        username: "sample_user"
+        email: "sample_user@mail.com"
+        password: "Pas$w0rd"
 
 
 
@@ -163,7 +161,7 @@ components:
     ApiKeyAuth:
       type: apiKey
       in: header
-      name: access_token
+      name: Authorization
       # name: X-API-Key
     # BasicAuth:
     #   type: http

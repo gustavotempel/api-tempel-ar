@@ -6,6 +6,7 @@ from sqlalchemy.exc import IntegrityError
 
 from tempel.controllers import user_controllers_bp
 from tempel.domain import models
+from tempel.services.authentication import token_required
 from tempel import codecs
 
 
@@ -15,7 +16,7 @@ marshaller = codecs.Marshaller()
 def signup_user():
     """
     Create user with the provided data.
-    
+
     Returns:
         A Flask response.
 
@@ -23,7 +24,7 @@ def signup_user():
     try:
         user = json.loads(request.data)
         cmd = marshaller.marshall(user, models.User)
-        current_app.query_engine.add(cmd)
+        current_app.user_query_engine.add(cmd)
         return {"id": cmd.user_id}, HTTPStatus.CREATED, {"Location": f"users/{cmd.user_id}"}
     except ValueError:
         return {
@@ -55,12 +56,12 @@ def signup_user():
 def search_users():
     """
     Get user list.
-    
+
     Returns:
-        A Flask response.    
+        A Flask response.
 
     """
-    result = current_app.query_engine.search()
+    result = current_app.user_query_engine.search()
     user_list = list(
         {
             k: v
@@ -80,10 +81,11 @@ def search_users():
 
 
 @user_controllers_bp.route("/users/<id>", methods=["GET"])
+@token_required
 def get_user_by_id(id):
     """
     Get user by id.
-    
+
     Returns:
         A Flask response.    
 
@@ -92,7 +94,7 @@ def get_user_by_id(id):
         user_id = int(id)
     except ValueError:
         abort(HTTPStatus.BAD_REQUEST)
-    result = current_app.query_engine.get(user_id)
+    result = current_app.user_query_engine.get(user_id)
     if not result:
         abort(HTTPStatus.NOT_FOUND)
     return {

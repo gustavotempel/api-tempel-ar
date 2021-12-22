@@ -1,7 +1,7 @@
-from tempel.web import create_app
 from dotenv import load_dotenv
 
 from tempel.conf import Settings
+from tempel.web import create_app
 
 load_dotenv()
 

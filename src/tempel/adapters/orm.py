@@ -1,7 +1,7 @@
 """
 Database Schemas for models.
 """
-from sqlalchemy import Table, Column, Integer, String, DateTime, Boolean, MetaData, create_engine, inspect
+from sqlalchemy import Table, Column, Integer, Float, String, DateTime, Boolean, MetaData, create_engine, inspect
 from sqlalchemy.exc import NoInspectionAvailable
 from sqlalchemy.orm import sessionmaker, registry
 
@@ -10,7 +10,6 @@ from tempel.conf import Settings
 
 
 mapper_registry = registry()
-
 metadata = MetaData()
 
 users = Table(
@@ -27,12 +26,22 @@ users = Table(
     Column("expires_on", Integer(), nullable=False),
 )
 
+products = Table(
+    "products",
+    metadata,
+    Column("product_id", Integer(), primary_key=True, autoincrement=True),
+    Column("name", String(50), nullable=False),
+    Column("price", Float(50), nullable=False),
+    Column("image", String(255), nullable=False),
+)
 
 def start_mappers():
     """Mapping domain entities to database tables."""
     try:
+        inspect(models.Product)
         inspect(models.User)
     except NoInspectionAvailable:
+        mapper_registry.map_imperatively(models.Product, products)
         mapper_registry.map_imperatively(models.User, users)
 
 
