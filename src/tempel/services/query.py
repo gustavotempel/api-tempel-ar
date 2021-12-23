@@ -100,7 +100,7 @@ class ProductSqlAlchemyQueryEngine(AbstractQueryEngine):
             session.query(models.Product).filter_by(product_id=id).update(product)
             session.commit()
 
-    def update(self, id):
+    def delete(self, id):
         with closing(self.session_factory()) as session:
             session.query(models.Product).filter_by(product_id=id).delete()
             session.commit()
