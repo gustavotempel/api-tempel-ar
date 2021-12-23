@@ -26,9 +26,10 @@ def create_app(settings: Settings) -> Flask:
 
     app.secret_key = os.environ["SECRET_KEY"]
 
-    # orm.start_mappers() # Already in SessionFactory
+    # Workaround to avoid renaming environment variables in Heroku
     if settings.database_url.startswith("postgres://"):
         settings.database_url = settings.database_url.replace("postgres://", "postgresql://", 1)
+        
     session_factory = orm.SessionFactory(settings)
     app.product_query_engine = query.ProductSqlAlchemyQueryEngine(session_factory)
     app.user_query_engine = query.UserSqlAlchemyQueryEngine(session_factory)

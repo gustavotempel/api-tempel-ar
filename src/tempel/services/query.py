@@ -23,7 +23,11 @@ class AbstractQueryEngine(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def update(self, obj: models.User):
+    def update(self, id, obj: models.User):
+        pass
+
+    @abc.abstractmethod
+    def delete(self, id):
         pass
 
 
@@ -54,7 +58,10 @@ class UserSqlAlchemyQueryEngine(AbstractQueryEngine):
             session.commit()
             print(user)
 
-    def update(self, obj: models.User):
+    def update(self, id, user):
+        pass
+
+    def delete(self, id):
         pass
 
     @staticmethod
@@ -91,6 +98,11 @@ class ProductSqlAlchemyQueryEngine(AbstractQueryEngine):
     def update(self, id, product):
         with closing(self.session_factory()) as session:
             session.query(models.Product).filter_by(product_id=id).update(product)
+            session.commit()
+
+    def update(self, id):
+        with closing(self.session_factory()) as session:
+            session.query(models.Product).filter_by(product_id=id).delete()
             session.commit()
 
     @staticmethod

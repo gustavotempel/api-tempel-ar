@@ -24,7 +24,10 @@ def add_product():
         product = json.loads(request.data)
         cmd = marshaller.marshall(product, models.Product)
         current_app.product_query_engine.add(cmd)
-        return {"id": cmd.product_id}, HTTPStatus.CREATED, {"Location": f"products/{cmd.product_id}"}
+        return {"id": cmd.product_id}, HTTPStatus.CREATED, {
+            "Location": f"products/{cmd.product_id}",
+            "Access-Control-Allow-Origin": "*"
+            }
     except ValueError:
         return {
             "detail": "Request body is not valid JSON",
@@ -130,6 +133,51 @@ def update_product(id):
         cmd = marshaller.marshall(new_product, models.Product)
         current_app.product_query_engine.update(product_id, new_product)
         return {"id": cmd.product_id}, HTTPStatus.CREATED, {"Location": f"products/{cmd.product_id}"}
+    except ValueError:
+        return {
+            "detail": "Request body is not valid JSON",
+            "status": 400,
+            "title": "Bad Request",
+            }, HTTPStatus.BAD_REQUEST
+    except TypeError:
+        return {
+            "detail": "Request body is not valid",
+            "status": 400,
+            "title": "Bad Request",
+            }, HTTPStatus.BAD_REQUEST
+    except IntegrityError:
+        return {
+            "detail": "Product id already exists",
+            "status": 400,
+            "title": "Bad Request",
+            }, HTTPStatus.BAD_REQUEST
+    except Exception as err:
+        return {
+            "detail": f"Unexpected {err=}",
+            "status": 400,
+            "title": "Bad Request",
+            }, HTTPStatus.BAD_REQUEST
+
+
+@product_controllers_bp.route("/products/<id>", methods=["DELETE"])
+def delete_product(id):
+    """
+    Given an id, removes the product from the database.
+
+    Returns:
+        A Flask response.
+
+    """
+    try:
+        product_id = int(id)
+    except ValueError:
+        abort(HTTPStatus.BAD_REQUEST)
+    product = current_app.product_query_engine.get(product_id)
+    if not product:
+        abort(HTTPStatus.NOT_FOUND)
+    try:
+        current_app.product_query_engine.delete(product_id)
+        return {"result": "Product deleted successfully"}, HTTPStatus.OK
     except ValueError:
         return {
             "detail": "Request body is not valid JSON",
