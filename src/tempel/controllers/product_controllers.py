@@ -24,8 +24,8 @@ def add_product():
         product = json.loads(request.data)
         cmd = marshaller.marshall(product, models.Product)
         current_app.product_query_engine.add(cmd)
-        return {"id": cmd.product_id}, HTTPStatus.CREATED, {
-            "Location": f"products/{cmd.product_id}",
+        return {"response": "ok"}, HTTPStatus.CREATED, {
+            "Location": f"products/cmd.product_id",
             "Access-Control-Allow-Origin": "*"
             }
     except ValueError:
@@ -46,9 +46,9 @@ def add_product():
             "status": 400,
             "title": "Bad Request",
             }, HTTPStatus.BAD_REQUEST
-    except:
+    except Exception as err:
         return {
-            "detail": "Bad Request",
+            "detail": f"Unexpected {err=}",
             "status": 400,
             "title": "Bad Request",
             }, HTTPStatus.BAD_REQUEST
